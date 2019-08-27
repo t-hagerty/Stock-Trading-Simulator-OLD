@@ -9,10 +9,12 @@ namespace StockSimulator.Controllers
 {
     public class CompanyController : Controller
     {
+        private CompanyDBContext db = new CompanyDBContext();
+
         // GET: Company
         public ActionResult Index()
         {
-            var companies = from c in GetCompanyList()
+            var companies = from c in db.Companies
                             orderby c.ID
                             select c;
             return View(companies);
@@ -32,12 +34,12 @@ namespace StockSimulator.Controllers
 
         // POST: Company/Create
         [HttpPost]
-        public ActionResult Create(FormCollection collection)
+        public ActionResult Create(Company c)
         {
             try
             {
-                // TODO: Add insert logic here
-
+                db.Companies.Add(c);
+                db.SaveChanges();
                 return RedirectToAction("Index");
             }
             catch
@@ -49,7 +51,8 @@ namespace StockSimulator.Controllers
         // GET: Company/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            Company c = db.Companies.Single(m => m.ID == id);
+            return View(c);
         }
 
         // POST: Company/Edit/5
@@ -58,9 +61,14 @@ namespace StockSimulator.Controllers
         {
             try
             {
-                // TODO: Add update logic here
-
-                return RedirectToAction("Index");
+                Company c = db.Companies.Single(m => m.ID == id);
+                if (TryUpdateModel(c))
+                {
+                    //TODO: database code
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+                return View(c);
             }
             catch
             {
@@ -71,7 +79,17 @@ namespace StockSimulator.Controllers
         // GET: Company/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            try
+            {
+                Company c = db.Companies.Single(m => m.ID == id);
+                db.Companies.Remove(c);
+                db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
         }
 
         // POST: Company/Delete/5
@@ -80,9 +98,15 @@ namespace StockSimulator.Controllers
         {
             try
             {
-                // TODO: Add delete logic here
-
-                return RedirectToAction("Index");
+                Company c = db.Companies.Single(m => m.ID == id);
+                db.Companies.Remove(c);
+                if (TryUpdateModel(c))
+                {
+                    //TODO: database code
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+                return View(c);
             }
             catch
             {
