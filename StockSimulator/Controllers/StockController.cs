@@ -1,4 +1,5 @@
 ﻿using StockSimulator.Models;
+using StockSimulator.DAL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace StockSimulator.Controllers
 {
     public class StockController : Controller
     {
-        private StockDBContext db = new StockDBContext();
+        private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Stock
         public ActionResult Index()
@@ -17,7 +18,7 @@ namespace StockSimulator.Controllers
             var stocks = from s in db.StockCandlesticks
                             orderby s.ID
                             select s;
-            return View(stocks);
+            return View(stocks.ToList());
         }
 
         // GET: Stock/Details/5
@@ -29,8 +30,7 @@ namespace StockSimulator.Controllers
         // GET: Stock/Create
         public ActionResult Create()
         {
-            CompanyDBContext cdb = new CompanyDBContext();
-            ViewBag.CompanyID = new SelectList(cdb.Companies, "ID", "TickerSymbol");
+            ViewBag.CompanyID = new SelectList(db.Companies, "ID", "TickerSymbol");
             return View();
         }
 
@@ -38,11 +38,10 @@ namespace StockSimulator.Controllers
         [HttpPost]
         public ActionResult Create(StockCandlestick s)
         {
-            CompanyDBContext cdb = new CompanyDBContext();
-            ViewBag.CompanyID = new SelectList(cdb.Companies, "ID", "TickerSymbol");
+            ViewBag.CompanyID = new SelectList(db.Companies, "ID", "TickerSymbol");
             try
             {
-                s.Company = cdb.Companies.Find(s.CompanyId);
+                s.Company = db.Companies.Find(s.CompanyId);
                 db.StockCandlesticks.Add(s);
                 db.SaveChanges();
                 return RedirectToAction("Index");
@@ -56,8 +55,7 @@ namespace StockSimulator.Controllers
         // GET: Stock/Edit/5
         public ActionResult Edit(int id)
         {
-            CompanyDBContext cdb = new CompanyDBContext();
-            ViewBag.CompanyID = new SelectList(cdb.Companies, "ID", "TickerSymbol");
+            ViewBag.CompanyID = new SelectList(db.Companies, "ID", "TickerSymbol");
             StockCandlestick s = db.StockCandlesticks.Single(m => m.ID == id);
             return View(s);
         }
@@ -66,8 +64,7 @@ namespace StockSimulator.Controllers
         [HttpPost]
         public ActionResult Edit(int id, FormCollection collection)
         {
-            CompanyDBContext cdb = new CompanyDBContext();
-            ViewBag.CompanyID = new SelectList(cdb.Companies, "ID", "TickerSymbol");
+            ViewBag.CompanyID = new SelectList(db.Companies, "ID", "TickerSymbol");
             try
             {
                 StockCandlestick s = db.StockCandlesticks.Single(m => m.ID == id);

@@ -1,4 +1,5 @@
 ﻿using StockSimulator.Models;
+using StockSimulator.DAL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace StockSimulator.Controllers
 {
     public class CompanyController : Controller
     {
-        private CompanyDBContext db = new CompanyDBContext();
+        private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Company
         public ActionResult Index()

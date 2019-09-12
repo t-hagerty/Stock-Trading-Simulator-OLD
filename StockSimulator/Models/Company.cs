@@ -12,12 +12,9 @@ namespace StockSimulator.Models
         public string CompanyName { get; set; }
         public string TickerSymbol { get; set; }
         public DateTime StartDataDate { get; set; }
-    }
 
-    public class CompanyDBContext : DbContext
-    {
-        public CompanyDBContext()
-        { }
-        public DbSet<Company> Companies { get; set; }
+        public virtual ICollection<StockCandlestick> StockCandlesticks { get; set; }
+        public virtual ICollection<Order> Orders { get; set; }
+        public virtual ICollection<Stock> Transactions { get; set; }
     }
 }

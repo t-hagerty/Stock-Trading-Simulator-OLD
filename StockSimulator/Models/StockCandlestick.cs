@@ -6,6 +6,9 @@ using System.Data.Entity;
 
 namespace StockSimulator.Models
 {
+    /*
+     * Models the price range of a stock at a given point in time https://www.investopedia.com/trading/candlestick-charting-what-is-it/
+     */
     public class StockCandlestick
     {
         public int ID { get; set; }
@@ -17,13 +20,5 @@ namespace StockSimulator.Models
         public decimal Low { get; set; }
         public decimal Close { get; set; }
         public int Volume { get; set; }
-    }
-
-    public class StockDBContext : DbContext
-    {
-        public StockDBContext()
-        { }
-        public DbSet<StockCandlestick> StockCandlesticks { get; set; }
-        public virtual DbSet<Company> Companies { get; set; }
     }
 }
