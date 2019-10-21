@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data.Entity;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
@@ -36,9 +37,40 @@ namespace StockSimulator.Models
         public DbSet<Stock> Stocks { get; set; }
         public DbSet<StockCandlestick> StockCandlesticks { get; set; }
 
+        private IEX_DataSource stockDataSource = new IEX_DataSource();
+
         public static ApplicationDbContext Create()
         {
             return new ApplicationDbContext();
+        }
+
+        public void RetrieveStockData(string tickerSymbol)
+        {
+            //TODO: add code to check the database first if we already have this data
+            //this method doesnt check a range and only gets current data, but it could still apply for when the market is closed i guess?
+            StockCandlestick stockCandlestick = stockDataSource.GetStockData(tickerSymbol).Result;
+            if(stockCandlestick != null)
+            {
+                stockCandlestick.Timestamp = System.DateTime.Now;
+                try
+                {
+                    stockCandlestick.Company = Companies.Single(c => c.TickerSymbol == tickerSymbol);
+                }
+                catch(System.Exception e) //Matching company not found in DB
+                {
+                    //TODO: maybe add code here later to make an api call to get company details of the ticker symbol and add to company DB
+                    //(the api obviously says it's a real company if we've reached this point)
+                    return;
+                }
+                stockCandlestick.CompanyId = stockCandlestick.Company.ID;
+                StockCandlesticks.Add(stockCandlestick);
+            }
+            SaveChanges();
+        }
+
+        public void RetrieveStockDataFromRange(string tickerSymbol)
+        {
+            StockCandlesticks.AddRange(stockDataSource.GetStockDataRange(tickerSymbol));
         }
     }
 }

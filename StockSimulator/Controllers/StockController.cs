@@ -15,6 +15,7 @@ namespace StockSimulator.Controllers
         // GET: Stock
         public ActionResult Index()
         {
+            db.RetrieveStockData("AAPL");
             var stocks = from s in db.StockCandlesticks
                             orderby s.ID
                             select s;
