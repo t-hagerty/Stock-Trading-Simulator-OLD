@@ -271,6 +271,7 @@
     <Content Include="Views\Stock\Create.cshtml" />
     <Content Include="Views\Stock\Edit.cshtml" />
     <Content Include="Views\Company\Edit.cshtml" />
+    <Content Include="Views\Stock\Search.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
