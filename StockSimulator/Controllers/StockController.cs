@@ -15,7 +15,6 @@ namespace StockSimulator.Controllers
         // GET: Stock
         public ActionResult Index()
         {
-            db.RetrieveStockData("AAPL");
             var stocks = from s in db.StockCandlesticks
                             orderby s.ID
                             select s;
@@ -33,6 +32,17 @@ namespace StockSimulator.Controllers
         {
             ViewBag.CompanyID = new SelectList(db.Companies, "ID", "TickerSymbol");
             return View();
+        }
+
+        // GET: Stock/Search
+        public ActionResult Search(string tickerSymbol)
+        {
+            var sc = db.RetrieveStockData(tickerSymbol);
+            if(sc == null)
+            {
+                return RedirectToAction("Index");
+            }
+            return View(sc);
         }
 
         // POST: Stock/Create

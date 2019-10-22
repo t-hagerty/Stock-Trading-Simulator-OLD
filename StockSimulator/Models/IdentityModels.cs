@@ -44,7 +44,7 @@ namespace StockSimulator.Models
             return new ApplicationDbContext();
         }
 
-        public void RetrieveStockData(string tickerSymbol)
+        public StockCandlestick RetrieveStockData(string tickerSymbol)
         {
             //TODO: add code to check the database first if we already have this data
             //this method doesnt check a range and only gets current data, but it could still apply for when the market is closed i guess?
@@ -60,12 +60,13 @@ namespace StockSimulator.Models
                 {
                     //TODO: maybe add code here later to make an api call to get company details of the ticker symbol and add to company DB
                     //(the api obviously says it's a real company if we've reached this point)
-                    return;
+                    return null;
                 }
                 stockCandlestick.CompanyId = stockCandlestick.Company.ID;
                 StockCandlesticks.Add(stockCandlestick);
             }
             SaveChanges();
+            return stockCandlestick;
         }
 
         public void RetrieveStockDataFromRange(string tickerSymbol)

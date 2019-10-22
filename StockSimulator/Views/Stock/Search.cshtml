@@ -1,0 +1,82 @@
+﻿@model StockSimulator.Models.StockCandlestick
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Search</title>
+</head>
+<body>
+    <div>
+        <h4>StockCandlestick</h4>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.Company.CompanyName)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.Company.CompanyName)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.Timestamp)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.Timestamp)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.Open)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.Open)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.High)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.High)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.Low)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.Low)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.Close)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.Close)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.Volume)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.Volume)
+            </dd>
+    
+        </dl>
+    </div>
+    <p>
+        @Html.ActionLink("Edit", "Edit", new { id = Model.ID }) |
+        @Html.ActionLink("Back to List", "Index")
+    </p>
+</body>
+</html>
