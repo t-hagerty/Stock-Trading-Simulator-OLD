@@ -16,8 +16,8 @@ namespace StockSimulator.Controllers
         public ActionResult Index()
         {
             var stocks = from s in db.StockCandlesticks
-                            orderby s.ID
-                            select s;
+                         orderby s.ID
+                         select s;
             return View(stocks.ToList());
         }
 
@@ -35,6 +35,7 @@ namespace StockSimulator.Controllers
         }
 
         // GET: Stock/Search
+        [HttpGet]
         public ActionResult Search(string tickerSymbol)
         {
             var sc = db.RetrieveStockData(tickerSymbol);
