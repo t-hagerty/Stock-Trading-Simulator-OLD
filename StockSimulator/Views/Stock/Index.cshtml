@@ -15,6 +15,13 @@
     <p>
         @Html.ActionLink("Create New", "Create")
     </p>
+    
+    <form method="get" action="@Url.Action("Search", "Stock")" >
+        <p>
+            Enter Ticker Symbol: <input type="text" name="tickerSymbol">
+            <input type="submit" value="Search" />
+        </p>
+    </form>
     <table class="table">
         <tr>
             <th>
@@ -40,38 +47,39 @@
             </th>
             <th></th>
         </tr>
-    
-    @foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Company.CompanyName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Timestamp)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Open)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.High)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Low)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Close)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Volume)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { id=item.ID }) |
-                @Html.ActionLink("Details", "Details", new { id=item.ID }) |
-                @Html.ActionLink("Delete", "Delete", new { id=item.ID })
-            </td>
-        </tr>
-    }
-    
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Company.CompanyName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Timestamp)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Open)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.High)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Low)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Close)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Volume)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.ID }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.ID }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.ID })
+                </td>
+            </tr>
+        }
+
     </table>
 </body>
 </html>
