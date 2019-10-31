@@ -69,9 +69,19 @@ namespace StockSimulator.Models
             return stockCandlestick;
         }
 
-        public void RetrieveStockDataFromRange(string tickerSymbol)
+        public void RetrieveStockDataFromRange(string tickerSymbol, string range)
         {
-            StockCandlesticks.AddRange(stockDataSource.GetStockDataRange(tickerSymbol));
+            StockCandlesticks.AddRange(stockDataSource.GetStockDataRange(tickerSymbol, range).Result);
+        }
+
+        public void RetrieveStockDataDayMinutes(string tickerSymbol)
+        {
+            StockCandlesticks.AddRange(stockDataSource.GetStockDataDayMinutes(tickerSymbol).Result);
+        }
+
+        public void RetrieveStockDataDate(string tickerSymbol, System.DateTime date)
+        {
+            StockCandlesticks.Add(stockDataSource.GetStockDataDate(tickerSymbol, date).Result);
         }
     }
 }

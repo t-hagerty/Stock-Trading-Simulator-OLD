@@ -29,6 +29,7 @@ namespace StockSimulator.Models
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
+        //https://iexcloud.io/docs/api/#quote
         public async Task<StockCandlestick> GetStockData(string tickerSymbol)
         {
             StockCandlestick stockCandlestick = null;
@@ -47,9 +48,67 @@ namespace StockSimulator.Models
             return stockCandlestick;
         }
 
-        public IEnumerable<StockCandlestick> GetStockDataRange(string tickerSymbol)
+        //https://iexcloud.io/docs/api/#historical-prices
+        public async Task<IEnumerable<StockCandlestick>> GetStockDataRange(string tickerSymbol, string range)
         {
-            throw new NotImplementedException();
+            //Avoid calling the API if range is not one of the accepted inputs:
+            if(range != "5y" && range != "2y" && range != "1y" && range != "6m" && range != "3m" && range != "1m" && range != "5d")
+            {
+                return null;
+            }
+
+            List<StockCandlestick> stockCandlesticks = null;
+            HttpResponseMessage response = client.GetAsync("stock/" + tickerSymbol + "/chart/" + range + TOKEN).GetAwaiter().GetResult();
+
+            if (response.IsSuccessStatusCode)
+            {
+                stockCandlesticks = await response.Content.ReadAsAsync<List<StockCandlestick>>();
+                Console.WriteLine(stockCandlesticks.ToString());
+            }
+            else
+            {
+                Console.WriteLine("{0} ({1})", (int)response.StatusCode, response.ReasonPhrase);
+            }
+
+            return stockCandlesticks;
+        }
+
+        //https://iexcloud.io/docs/api/#intraday-prices
+        public async Task<IEnumerable<StockCandlestick>> GetStockDataDayMinutes(string tickerSymbol)
+        {
+            List<StockCandlestick> stockCandlesticks = null;
+            HttpResponseMessage response = client.GetAsync("stock/" + tickerSymbol + "/intraday-prices" + TOKEN + "&chartIEXWhenNull=true").GetAwaiter().GetResult();
+
+            if (response.IsSuccessStatusCode)
+            {
+                stockCandlesticks = await response.Content.ReadAsAsync<List<StockCandlestick>>();
+                Console.WriteLine(stockCandlesticks.ToString());
+            }
+            else
+            {
+                Console.WriteLine("{0} ({1})", (int)response.StatusCode, response.ReasonPhrase);
+            }
+
+            return stockCandlesticks;
+        }
+
+        //https://iexcloud.io/docs/api/#historical-prices
+        public async Task<StockCandlestick> GetStockDataDate(string tickerSymbol, DateTime date)
+        {
+            StockCandlestick stockCandlestick = null;
+            HttpResponseMessage response = client.GetAsync("stock/" + tickerSymbol + "/chart/date/" + date.ToString("yyyyMMdd") + TOKEN + "&chartByDay=true").GetAwaiter().GetResult();
+
+            if (response.IsSuccessStatusCode)
+            {
+                stockCandlestick = await response.Content.ReadAsAsync<StockCandlestick>();
+                Console.WriteLine(stockCandlestick.ToString());
+            }
+            else
+            {
+                Console.WriteLine("{0} ({1})", (int)response.StatusCode, response.ReasonPhrase);
+            }
+
+            return stockCandlestick;
         }
     }
 }
