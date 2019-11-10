@@ -77,12 +77,22 @@ namespace StockSimulator.Models
         public async Task<IEnumerable<StockCandlestick>> GetStockDataDayMinutes(string tickerSymbol)
         {
             List<StockCandlestick> stockCandlesticks = null;
+            List<DailyMinutesCandlestickWrapper> wrapperCandlesticks;
             HttpResponseMessage response = client.GetAsync("stock/" + tickerSymbol + "/intraday-prices" + TOKEN + "&chartIEXWhenNull=true").GetAwaiter().GetResult();
 
             if (response.IsSuccessStatusCode)
             {
-                stockCandlesticks = await response.Content.ReadAsAsync<List<StockCandlestick>>();
-                Console.WriteLine(stockCandlesticks.ToString());
+                wrapperCandlesticks = await response.Content.ReadAsAsync<List<DailyMinutesCandlestickWrapper>>();
+                wrapperCandlesticks.RemoveAll(w => w.high == null);
+                stockCandlesticks = wrapperCandlesticks.ConvertAll<StockCandlestick>(x => new StockCandlestick() {ID = -1,
+                                                                                                                  CompanyId = -1,
+                                                                                                                  Company = null,
+                                                                                                                  Timestamp = DateTime.Parse(x.date + " " + x.minute),
+                                                                                                                  Open = x.open.Value,
+                                                                                                                  High = x.high.Value,
+                                                                                                                  Low = x.low.Value,
+                                                                                                                  Close = x.close.Value,
+                                                                                                                  Volume = x.volume});
             }
             else
             {
@@ -110,5 +120,20 @@ namespace StockSimulator.Models
 
             return stockCandlestick;
         }
+    }
+
+    public class DailyMinutesCandlestickWrapper
+    {
+        public string date { get; set; }
+        public string minute { get; set; }
+        public string label { get; set; }
+        public decimal? high { get; set; }
+        public decimal? low { get; set; }
+        public decimal? open { get; set; }
+        public decimal? close { get; set; }
+        public double? average { get; set; }
+        public int volume { get; set; }
+        public double notional { get; set; }
+        public int numberOfTrades { get; set; }
     }
 }

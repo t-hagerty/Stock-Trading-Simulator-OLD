@@ -46,6 +46,8 @@ namespace StockSimulator.Models
 
         public void RetrieveStockData(string tickerSymbol)
         {
+            //TODO: add code to check if valid ticker symbol
+
             //TODO: add code to check the database first if we already have this data
             //this method doesnt check a range and only gets current data, but it could still apply for when the market is closed i guess?
             StockCandlestick stockCandlestick = stockDataSource.GetStockData(tickerSymbol).Result;
@@ -64,8 +66,8 @@ namespace StockSimulator.Models
                 }
                 stockCandlestick.CompanyId = stockCandlestick.Company.ID;
                 StockCandlesticks.Add(stockCandlestick);
+                SaveChanges();
             }
-            SaveChanges();
         }
 
         public void RetrieveStockDataFromRange(string tickerSymbol, string range)
@@ -73,9 +75,23 @@ namespace StockSimulator.Models
             StockCandlesticks.AddRange(stockDataSource.GetStockDataRange(tickerSymbol, range).Result);
         }
 
-        public void RetrieveStockDataDayMinutes(string tickerSymbol)
+        public async Task RetrieveStockDataDayMinutes(string tickerSymbol)
         {
-            StockCandlesticks.AddRange(stockDataSource.GetStockDataDayMinutes(tickerSymbol).Result);
+            //TODO: add code to check if valid ticker symbol
+
+            //TODO: add code to check the database first if we already have this data
+            var result = await stockDataSource.GetStockDataDayMinutes(tickerSymbol);
+            if (result != null && result.Count() != 0)
+            {
+                Company company = Companies.Single(c => c.TickerSymbol == tickerSymbol);
+                foreach (var s in result)
+                {
+                    s.Company = company;
+                    s.CompanyId = company.ID;
+                }
+                StockCandlesticks.AddRange(result);
+                SaveChanges();
+            }
         }
 
         public void RetrieveStockDataDate(string tickerSymbol, System.DateTime date)
