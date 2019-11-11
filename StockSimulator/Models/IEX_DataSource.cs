@@ -38,7 +38,6 @@ namespace StockSimulator.Models
             if (response.IsSuccessStatusCode)
             {
                 stockCandlestick = await response.Content.ReadAsAsync<StockCandlestick>();
-                Console.WriteLine(stockCandlestick.ToString());
             }
             else
             {
@@ -58,12 +57,24 @@ namespace StockSimulator.Models
             }
 
             List<StockCandlestick> stockCandlesticks = null;
+            List<DailyRangeCandlestickWrapper> wrapperCandlesticks;
             HttpResponseMessage response = client.GetAsync("stock/" + tickerSymbol + "/chart/" + range + TOKEN).GetAwaiter().GetResult();
 
             if (response.IsSuccessStatusCode)
             {
-                stockCandlesticks = await response.Content.ReadAsAsync<List<StockCandlestick>>();
-                Console.WriteLine(stockCandlesticks.ToString());
+                wrapperCandlesticks = await response.Content.ReadAsAsync<List<DailyRangeCandlestickWrapper>>();
+                stockCandlesticks = wrapperCandlesticks.ConvertAll<StockCandlestick>(x => new StockCandlestick()
+                {
+                    ID = -1,
+                    CompanyId = -1,
+                    Company = null,
+                    Timestamp = DateTime.Parse(x.date + " 16:00"),
+                    Open = x.open,
+                    High = x.high,
+                    Low = x.low,
+                    Close = x.close,
+                    Volume = x.volume
+                });
             }
             else
             {
@@ -84,15 +95,18 @@ namespace StockSimulator.Models
             {
                 wrapperCandlesticks = await response.Content.ReadAsAsync<List<DailyMinutesCandlestickWrapper>>();
                 wrapperCandlesticks.RemoveAll(w => w.high == null);
-                stockCandlesticks = wrapperCandlesticks.ConvertAll<StockCandlestick>(x => new StockCandlestick() {ID = -1,
-                                                                                                                  CompanyId = -1,
-                                                                                                                  Company = null,
-                                                                                                                  Timestamp = DateTime.Parse(x.date + " " + x.minute),
-                                                                                                                  Open = x.open.Value,
-                                                                                                                  High = x.high.Value,
-                                                                                                                  Low = x.low.Value,
-                                                                                                                  Close = x.close.Value,
-                                                                                                                  Volume = x.volume});
+                stockCandlesticks = wrapperCandlesticks.ConvertAll<StockCandlestick>(x => new StockCandlestick()
+                {
+                    ID = -1,
+                    CompanyId = -1,
+                    Company = null,
+                    Timestamp = DateTime.Parse(x.date + " " + x.minute),
+                    Open = x.open.Value,
+                    High = x.high.Value,
+                    Low = x.low.Value,
+                    Close = x.close.Value,
+                    Volume = x.volume
+                });
             }
             else
             {
@@ -111,7 +125,6 @@ namespace StockSimulator.Models
             if (response.IsSuccessStatusCode)
             {
                 stockCandlestick = await response.Content.ReadAsAsync<StockCandlestick>();
-                Console.WriteLine(stockCandlestick.ToString());
             }
             else
             {
@@ -135,5 +148,24 @@ namespace StockSimulator.Models
         public int volume { get; set; }
         public double notional { get; set; }
         public int numberOfTrades { get; set; }
+    }
+
+    public class DailyRangeCandlestickWrapper
+    {
+        public string date { get; set; }
+        public decimal open { get; set; }
+        public decimal high { get; set; }
+        public decimal low { get; set; }
+        public decimal close { get; set; }
+        public int volume { get; set; }
+        public decimal uOpen { get; set; }
+        public decimal uHigh { get; set; }
+        public decimal uLow { get; set; }
+        public decimal uClose { get; set; }
+        public int uVolume { get; set; }
+        public double change { get; set; }
+        public double changePercent { get; set; }
+        public string label { get; set; }
+        public double changeOverTime { get; set; }
     }
 }

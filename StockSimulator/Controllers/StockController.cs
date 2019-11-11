@@ -16,7 +16,7 @@ namespace StockSimulator.Controllers
         // GET: Stock
         public async Task<ActionResult> Index()
         {
-            await db.RetrieveStockDataDayMinutes("AAPL");
+            //await db.RetrieveStockDataFromRange("AAPL", "5d");
             var stocks = from s in db.StockCandlesticks
                             orderby s.ID
                             select s;
