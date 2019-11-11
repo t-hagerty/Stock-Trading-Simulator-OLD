@@ -18,8 +18,8 @@ namespace StockSimulator.Controllers
         {
             //await db.RetrieveStockDataDate("AAPL", new DateTime(2018, 11, 12));
             var stocks = from s in db.StockCandlesticks
-                            orderby s.ID
-                            select s;
+                         orderby s.ID
+                         select s;
             return View(stocks.ToList());
         }
 
@@ -34,6 +34,18 @@ namespace StockSimulator.Controllers
         {
             ViewBag.CompanyID = new SelectList(db.Companies, "ID", "TickerSymbol");
             return View();
+        }
+
+        // GET: Stock/Search
+        [HttpGet]
+        public ActionResult Search(string tickerSymbol)
+        {
+            var sc = db.RetrieveStockData(tickerSymbol);
+            if(sc == null)
+            {
+                return RedirectToAction("Index");
+            }
+            return View(sc);
         }
 
         // POST: Stock/Create

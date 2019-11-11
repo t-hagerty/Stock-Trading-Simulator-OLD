@@ -21,10 +21,21 @@ namespace StockSimulator.Controllers
             return View(companies);
         }
 
-        // GET: Company/Details/5
-        public ActionResult Details(int id)
+        // GET: Company?tickerSymbol=AAPL
+        [HttpGet]
+        public ActionResult Index(string tickerSymbol)
         {
-            return View();
+            var companies = from c in db.Companies
+                            where c.TickerSymbol.Contains(tickerSymbol)
+                            orderby c.ID
+                            select c;
+            return View(companies);
+        }
+
+        // GET: Company/Details/5
+        public ActionResult Details(int id, string ticker)
+        {
+            return RedirectToAction("Search", "Stock", new { tickerSymbol = ticker });
         }
 
         // GET: Company/Create
