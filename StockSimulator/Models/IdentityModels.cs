@@ -124,9 +124,31 @@ namespace StockSimulator.Models
             }
         }
 
-        public void RetrieveStockDataDate(string tickerSymbol, System.DateTime date)
+        public async Task RetrieveStockDataDate(string tickerSymbol, System.DateTime date)
         {
-            StockCandlesticks.Add(stockDataSource.GetStockDataDate(tickerSymbol, date).Result);
+            //TODO: add code to check if valid ticker symbol
+
+            //TODO: add code to check the database first if we already have this data
+            date = date.AddHours(16);
+            var result = await stockDataSource.GetStockDataDate(tickerSymbol, date);
+            if(result == null)
+            {
+                return;
+            }
+            result.Timestamp = date;
+            Company company = Companies.Single(c => c.TickerSymbol == tickerSymbol);
+            result.Company = company;
+            result.CompanyId = company.ID;
+            try
+            {
+                StockCandlesticks.Single(sc => sc.CompanyId == result.CompanyId && sc.Timestamp == result.Timestamp);
+            }
+            catch (System.InvalidOperationException e)
+            {
+                //No records (or hopefully not multiple!) in DB matching s, so let's add it
+                StockCandlesticks.Add(result);
+                SaveChanges();
+            }
         }
     }
 }

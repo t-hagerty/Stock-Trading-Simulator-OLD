@@ -119,19 +119,25 @@ namespace StockSimulator.Models
         //https://iexcloud.io/docs/api/#historical-prices
         public async Task<StockCandlestick> GetStockDataDate(string tickerSymbol, DateTime date)
         {
-            StockCandlestick stockCandlestick = null;
+            List<StockCandlestick> stockCandlesticks = null;
             HttpResponseMessage response = client.GetAsync("stock/" + tickerSymbol + "/chart/date/" + date.ToString("yyyyMMdd") + TOKEN + "&chartByDay=true").GetAwaiter().GetResult();
 
             if (response.IsSuccessStatusCode)
             {
-                stockCandlestick = await response.Content.ReadAsAsync<StockCandlestick>();
+                stockCandlesticks = await response.Content.ReadAsAsync<List<StockCandlestick>>();
             }
             else
             {
                 Console.WriteLine("{0} ({1})", (int)response.StatusCode, response.ReasonPhrase);
             }
-
-            return stockCandlestick;
+            try
+            {
+                return stockCandlesticks.First();
+            }
+            catch(InvalidOperationException e)
+            {
+                return null;
+            }
         }
     }
 
