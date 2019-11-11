@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Threading.Tasks;
 
 namespace StockSimulator.Controllers
 {
@@ -13,8 +14,9 @@ namespace StockSimulator.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Stock
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
+            //await db.RetrieveStockDataDate("AAPL", new DateTime(2018, 11, 12));
             var stocks = from s in db.StockCandlesticks
                          orderby s.ID
                          select s;

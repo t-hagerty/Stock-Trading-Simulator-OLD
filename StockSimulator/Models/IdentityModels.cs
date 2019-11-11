@@ -44,44 +44,111 @@ namespace StockSimulator.Models
             return new ApplicationDbContext();
         }
 
-        public StockCandlestick RetrieveStockData(string tickerSymbol)
+        public void RetrieveStockData(string tickerSymbol)
         {
+            Company company;
+            try
+            {
+                company = Companies.Single(c => c.TickerSymbol == tickerSymbol);
+            }
+            catch (System.Exception e) //Matching company not found in DB
+            {
+                //TODO: maybe add code here later to make an api call to get company details of the ticker symbol and add to company DB
+                return;
+            }
+
             //TODO: add code to check the database first if we already have this data
             //this method doesnt check a range and only gets current data, but it could still apply for when the market is closed i guess?
             StockCandlestick stockCandlestick = stockDataSource.GetStockData(tickerSymbol).Result;
             if(stockCandlestick != null)
             {
                 stockCandlestick.Timestamp = System.DateTime.Now;
-                try
-                {
-                    stockCandlestick.Company = Companies.Single(c => c.TickerSymbol == tickerSymbol);
-                }
-                catch(System.Exception e) //Matching company not found in DB
-                {
-                    //TODO: maybe add code here later to make an api call to get company details of the ticker symbol and add to company DB
-                    //(the api obviously says it's a real company if we've reached this point)
-                    return null;
-                }
+                stockCandlestick.Company = company;
                 stockCandlestick.CompanyId = stockCandlestick.Company.ID;
                 StockCandlesticks.Add(stockCandlestick);
+                SaveChanges();
             }
-            SaveChanges();
-            return stockCandlestick;
         }
 
-        public void RetrieveStockDataFromRange(string tickerSymbol, string range)
+        public async Task RetrieveStockDataFromRange(string tickerSymbol, string range)
         {
-            StockCandlesticks.AddRange(stockDataSource.GetStockDataRange(tickerSymbol, range).Result);
+            //TODO: add code to check if valid ticker symbol
+
+            //TODO: add code to check the database first if we already have this data
+            var result = await stockDataSource.GetStockDataRange(tickerSymbol, range);
+            if (result != null && result.Count() != 0)
+            {
+                Company company = Companies.Single(c => c.TickerSymbol == tickerSymbol);
+                foreach (var s in result)
+                {
+                    s.Company = company;
+                    s.CompanyId = company.ID;
+                    try
+                    {
+                        StockCandlesticks.Single(sc => sc.CompanyId == s.CompanyId && sc.Timestamp == s.Timestamp);
+                    }
+                    catch (System.InvalidOperationException e)
+                    {
+                        //No records (or hopefully not multiple!) in DB matching s, so let's add it
+                        StockCandlesticks.Add(s);
+                    }
+                }
+                SaveChanges();
+            }
         }
 
-        public void RetrieveStockDataDayMinutes(string tickerSymbol)
+        public async Task RetrieveStockDataDayMinutes(string tickerSymbol)
         {
-            StockCandlesticks.AddRange(stockDataSource.GetStockDataDayMinutes(tickerSymbol).Result);
+            //TODO: add code to check if valid ticker symbol
+
+            //TODO: add code to check the database first if we already have this data
+            var result = await stockDataSource.GetStockDataDayMinutes(tickerSymbol);
+            if (result != null && result.Count() != 0)
+            {
+                Company company = Companies.Single(c => c.TickerSymbol == tickerSymbol);
+                foreach (var s in result)
+                {
+                    s.Company = company;
+                    s.CompanyId = company.ID;
+                    try
+                    {
+                        StockCandlesticks.Single(sc => sc.CompanyId == s.CompanyId && sc.Timestamp == s.Timestamp);
+                    }
+                    catch(System.InvalidOperationException e)
+                    {
+                        //No records (or hopefully not multiple!) in DB matching s, so let's add it
+                        StockCandlesticks.Add(s);
+                    }
+                }
+                SaveChanges();
+            }
         }
 
-        public void RetrieveStockDataDate(string tickerSymbol, System.DateTime date)
+        public async Task RetrieveStockDataDate(string tickerSymbol, System.DateTime date)
         {
-            StockCandlesticks.Add(stockDataSource.GetStockDataDate(tickerSymbol, date).Result);
+            //TODO: add code to check if valid ticker symbol
+
+            //TODO: add code to check the database first if we already have this data
+            date = date.AddHours(16);
+            var result = await stockDataSource.GetStockDataDate(tickerSymbol, date);
+            if(result == null)
+            {
+                return;
+            }
+            result.Timestamp = date;
+            Company company = Companies.Single(c => c.TickerSymbol == tickerSymbol);
+            result.Company = company;
+            result.CompanyId = company.ID;
+            try
+            {
+                StockCandlesticks.Single(sc => sc.CompanyId == result.CompanyId && sc.Timestamp == result.Timestamp);
+            }
+            catch (System.InvalidOperationException e)
+            {
+                //No records (or hopefully not multiple!) in DB matching s, so let's add it
+                StockCandlesticks.Add(result);
+                SaveChanges();
+            }
         }
     }
 }
