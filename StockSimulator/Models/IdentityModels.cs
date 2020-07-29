@@ -44,7 +44,7 @@ namespace StockSimulator.Models
             return new ApplicationDbContext();
         }
 
-        public void RetrieveStockData(string tickerSymbol)
+        public async Task<StockCandlestick> RetrieveStockData(string tickerSymbol)
         {
             Company company;
             try
@@ -54,20 +54,23 @@ namespace StockSimulator.Models
             catch (System.Exception e) //Matching company not found in DB
             {
                 //TODO: maybe add code here later to make an api call to get company details of the ticker symbol and add to company DB
-                return;
+                return null;
             }
 
             //TODO: add code to check the database first if we already have this data
             //this method doesnt check a range and only gets current data, but it could still apply for when the market is closed i guess?
-            StockCandlestick stockCandlestick = stockDataSource.GetStockData(tickerSymbol).Result;
-            if(stockCandlestick != null)
+            var result = await stockDataSource.GetStockData(tickerSymbol);
+            //StockCandlestick stockCandlestick = stockDataSource.GetStockData(tickerSymbol).Result;
+            if(result != null)
             {
-                stockCandlestick.Timestamp = System.DateTime.Now;
-                stockCandlestick.Company = company;
-                stockCandlestick.CompanyId = stockCandlestick.Company.ID;
-                StockCandlesticks.Add(stockCandlestick);
+                result.Timestamp = System.DateTime.Now;
+                result.Company = company;
+                result.CompanyId = result.Company.ID;
+                StockCandlesticks.Add(result);
                 SaveChanges();
+                return result;
             }
+            return null;
         }
 
         public async Task RetrieveStockDataFromRange(string tickerSymbol, string range)

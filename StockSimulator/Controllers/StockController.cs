@@ -38,9 +38,9 @@ namespace StockSimulator.Controllers
 
         // GET: Stock/Search
         [HttpGet]
-        public ActionResult Search(string tickerSymbol)
+        public async Task<ActionResult> Search(string tickerSymbol)
         {
-            var sc = db.RetrieveStockData(tickerSymbol);
+            var sc = await db.RetrieveStockData(tickerSymbol);
             if(sc == null)
             {
                 return RedirectToAction("Index");
