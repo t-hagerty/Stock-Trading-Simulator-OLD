@@ -33,11 +33,22 @@ namespace StockSimulator.Models
         public async Task<StockCandlestick> GetStockData(string tickerSymbol)
         {
             StockCandlestick stockCandlestick = null;
+            QuoteCandleStickWrapper wrapperCandlestick;
             HttpResponseMessage response = client.GetAsync("stock/" + tickerSymbol + "/quote" + TOKEN).GetAwaiter().GetResult();
 
             if (response.IsSuccessStatusCode)
             {
-                stockCandlestick = await response.Content.ReadAsAsync<StockCandlestick>();
+                wrapperCandlestick = await response.Content.ReadAsAsync<QuoteCandleStickWrapper>();
+                stockCandlestick = new StockCandlestick();
+                stockCandlestick.ID = -1;
+                stockCandlestick.CompanyId = -1;
+                stockCandlestick.Company = null;
+                stockCandlestick.Timestamp = DateTime.Parse(wrapperCandlestick.latestTime);
+                stockCandlestick.Open = wrapperCandlestick.open;
+                stockCandlestick.High = wrapperCandlestick.high;
+                stockCandlestick.Low = wrapperCandlestick.low;
+                stockCandlestick.Close = wrapperCandlestick.close;
+                stockCandlestick.Volume = wrapperCandlestick.volume;
             }
             else
             {
@@ -173,5 +184,52 @@ namespace StockSimulator.Models
         public double changePercent { get; set; }
         public string label { get; set; }
         public double changeOverTime { get; set; }
+    }
+
+    public class QuoteCandleStickWrapper
+    {
+        public string symbol { get; set; }
+        public string companyName { get; set; }
+        public string calculationPrice { get; set; }
+        public decimal open { get; set; }
+        public UInt64 openTime { get; set; }
+        public decimal close { get; set; }
+        public UInt64 closeTime { get; set; }
+        public decimal high { get; set; }
+        public decimal low { get; set; }
+        public decimal latestPrice { get; set; }
+        public string latestSource { get; set; }
+        public string latestTime { get; set; }
+        public UInt64 latestUpdate { get; set; }
+        public int latestVolume { get; set; }
+        public int volume { get; set; }
+        public decimal iexRealtimePrice { get; set; }
+        public int iexRealtimeSize { get; set; }
+        public UInt64 iexLastUpdated { get; set; }
+        public decimal delayedPrice { get; set; }
+        public UInt64 delayedPriceTime { get; set; }
+        public decimal oddLotDelayedPrice { get; set; }
+        public UInt64 oddLotDelayedPriceTime { get; set; }
+        public decimal extendedPrice { get; set; }
+        public decimal extendedChange { get; set; }
+        public decimal extendedChangePercent { get; set; }
+        public UInt64 extendedPriceTime { get; set; }
+        public decimal previousClose { get; set; }
+        public int previousVolume { get; set; }
+        public decimal change { get; set; }
+        public decimal changePercent { get; set; }
+        public decimal iexMarketPercent { get; set; }
+        public int iexVolume { get; set; }
+        public int avgTotalVolume { get; set; }
+        public decimal iexBidPrice { get; set; }
+        public int iexBidSize { get; set; }
+        public decimal iexAskPrice { get; set; }
+        public UInt64 marketCap { get; set; }
+        public decimal week52High { get; set; }
+        public decimal week52Low { get; set; }
+        public decimal ytdChange { get; set; }
+        public decimal peRatio { get; set; }
+        public UInt64 lastTradeTime { get; set; }
+        public bool isUsMarketOpen { get; set; }
     }
 }
