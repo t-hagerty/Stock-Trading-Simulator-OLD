@@ -150,6 +150,52 @@ namespace StockSimulator.Models
                 return null;
             }
         }
+        public async Task<Company> GetCompanyDetails(string tickerSymbol)
+        {
+            Company company = null;
+            CompanyWrapper wrapperCompany;
+            HttpResponseMessage response = client.GetAsync("stock/" + tickerSymbol + "/company" + TOKEN).GetAwaiter().GetResult();
+
+            if (response.IsSuccessStatusCode)
+            {
+                wrapperCompany = await response.Content.ReadAsAsync<CompanyWrapper>();
+                company = new Company();
+                company.ID = -1;
+                company.CompanyName = wrapperCompany.companyName;
+                company.TickerSymbol = tickerSymbol;
+                company.StartDataDate = DateTime.Now;
+            }
+            else
+            {
+                Console.WriteLine("{0} ({1})", (int)response.StatusCode, response.ReasonPhrase);
+            }
+
+            return company;
+        }
+    }
+
+    public class CompanyWrapper
+    {
+        public string symbol { get; set; }
+        public string companyName { get; set; }
+        public int employees { get; set; }
+        public string exchange { get; set; }
+        public string industry { get; set; }
+        public string website { get; set; }
+        public string description { get; set; }
+        public string ceo { get; set; }
+        public string securityName { get; set; }
+        public string issueType { get; set; }
+        public string sector { get; set; }
+        public string primarySicCode { get; set; }
+        public string[] tags { get; set; }
+        public string address { get; set; }
+        public string address2 { get; set; }
+        public string state { get; set; }
+        public string city { get; set; }
+        public string zip { get; set; }
+        public string country { get; set; }
+        public string phone { get; set; }
     }
 
     public class DailyMinutesCandlestickWrapper
