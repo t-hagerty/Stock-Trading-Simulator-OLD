@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Security.Claims;
@@ -58,20 +59,30 @@ namespace StockSimulator.Models
                 SaveChanges();
             }
 
-            //TODO: add code to check the database first if we already have this data
+            //code to check the database first if we already have this data
             //this method doesnt check a range and only gets current data, but it could still apply for when the market is closed i guess?
-            var result = await stockDataSource.GetStockData(tickerSymbol);
-            //StockCandlestick stockCandlestick = stockDataSource.GetStockData(tickerSymbol).Result;
-            if(result != null)
+            StockCandlestick result;
+            try
             {
-                result.Timestamp = System.DateTime.Now;
-                result.Company = company;
-                result.CompanyId = result.Company.ID;
-                StockCandlesticks.Add(result);
-                SaveChanges();
+                //TODO: code to change datetime to closing time if closed
+                DateTime time = DateTime.Now;
+                result = StockCandlesticks.Single(s => s.Company == company && s.Timestamp == time);
                 return result;
             }
-            return null;
+            catch (System.Exception e) //Matching stock candlestick data not found in DB, need to get it
+            {
+                result = await stockDataSource.GetStockData(tickerSymbol);
+                if (result != null)
+                {
+                    result.Timestamp = System.DateTime.Now;
+                    result.Company = company;
+                    result.CompanyId = result.Company.ID;
+                    StockCandlesticks.Add(result);
+                    SaveChanges();
+                    return result;
+                }
+                return null;
+            }
         }
 
         public async Task RetrieveStockDataFromRange(string tickerSymbol, string range)
