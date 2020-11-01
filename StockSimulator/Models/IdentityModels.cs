@@ -60,12 +60,11 @@ namespace StockSimulator.Models
             }
 
             //code to check the database first if we already have this data
-            //this method doesnt check a range and only gets current data, but it could still apply for when the market is closed i guess?
+            //this method doesnt check a range and only gets current data, but it could still apply for when the market is closed
             StockCandlestick result;
             try
             {
-                //TODO: code to change datetime to closing time if closed
-                DateTime time = DateTime.Now;
+                DateTime time = GetMostRecentMarketTimestamp();
                 result = StockCandlesticks.Single(s => s.Company == company && s.Timestamp == time);
                 return result;
             }
@@ -191,6 +190,45 @@ namespace StockSimulator.Models
                 StockCandlesticks.Add(result);
                 SaveChanges();
             }
+        }
+
+        public DateTime GetMostRecentMarketTimestamp()
+        {
+            DateTime time = DateTime.Now;
+            //TODO: handle different market closing times?
+            DateTime closingTime = new DateTime(time.Year, time.Month, time.Day, 16, 0, 0);
+            if (time.DayOfWeek != DayOfWeek.Saturday && time.DayOfWeek != DayOfWeek.Sunday)
+            {
+                int comparison = time.CompareTo(closingTime);
+                if (comparison > 0 || comparison == 0) //closed
+                {
+                    return closingTime;
+                }
+                //if we havent returned, it is before closing, check if before opening
+                DateTime openingTime = new DateTime(time.Year, time.Month, time.Day, 9, 30, 0);
+                comparison = time.CompareTo(openingTime);
+                if (comparison > 0 || comparison == 0) //market open
+                {
+                    return time;
+                }
+                
+            }
+            //before opening, get previous open day's closing time
+            if (time.DayOfWeek == DayOfWeek.Monday)
+            {
+                closingTime = closingTime.AddDays(-3); //Friday
+            }
+            else if (time.DayOfWeek == DayOfWeek.Sunday)
+            {
+                closingTime = closingTime.AddDays(-2);
+            }
+            else
+            {
+                closingTime = closingTime.AddDays(-1); //if saturday, sets to friday, if tues-thurs, sets to prev. weekday
+            }
+            //TODO: handle market holidays, also, figure out when those are
+            return closingTime;
+            
         }
     }
 }
