@@ -53,8 +53,9 @@ namespace StockSimulator.Models
             }
             catch (System.Exception e) //Matching company not found in DB
             {
-                //TODO: maybe add code here later to make an api call to get company details of the ticker symbol and add to company DB
-                return null;
+                company = await stockDataSource.GetCompanyDetails(tickerSymbol);
+                Companies.Add(company);
+                SaveChanges();
             }
 
             //TODO: add code to check the database first if we already have this data
@@ -75,13 +76,22 @@ namespace StockSimulator.Models
 
         public async Task RetrieveStockDataFromRange(string tickerSymbol, string range)
         {
-            //TODO: add code to check if valid ticker symbol
+            Company company;
+            try
+            {
+                company = Companies.Single(c => c.TickerSymbol == tickerSymbol);
+            }
+            catch (System.Exception e) //Matching company not found in DB
+            {
+                company = await stockDataSource.GetCompanyDetails(tickerSymbol);
+                Companies.Add(company);
+                SaveChanges();
+            }
 
             //TODO: add code to check the database first if we already have this data
             var result = await stockDataSource.GetStockDataRange(tickerSymbol, range);
             if (result != null && result.Count() != 0)
             {
-                Company company = Companies.Single(c => c.TickerSymbol == tickerSymbol);
                 foreach (var s in result)
                 {
                     s.Company = company;
@@ -102,13 +112,22 @@ namespace StockSimulator.Models
 
         public async Task RetrieveStockDataDayMinutes(string tickerSymbol)
         {
-            //TODO: add code to check if valid ticker symbol
+            Company company;
+            try
+            {
+                company = Companies.Single(c => c.TickerSymbol == tickerSymbol);
+            }
+            catch (System.Exception e) //Matching company not found in DB
+            {
+                company = await stockDataSource.GetCompanyDetails(tickerSymbol);
+                Companies.Add(company);
+                SaveChanges();
+            }
 
             //TODO: add code to check the database first if we already have this data
             var result = await stockDataSource.GetStockDataDayMinutes(tickerSymbol);
             if (result != null && result.Count() != 0)
             {
-                Company company = Companies.Single(c => c.TickerSymbol == tickerSymbol);
                 foreach (var s in result)
                 {
                     s.Company = company;
@@ -129,7 +148,17 @@ namespace StockSimulator.Models
 
         public async Task RetrieveStockDataDate(string tickerSymbol, System.DateTime date)
         {
-            //TODO: add code to check if valid ticker symbol
+            Company company;
+            try
+            {
+                company = Companies.Single(c => c.TickerSymbol == tickerSymbol);
+            }
+            catch (System.Exception e) //Matching company not found in DB
+            {
+                company = await stockDataSource.GetCompanyDetails(tickerSymbol);
+                Companies.Add(company);
+                SaveChanges();
+            }
 
             //TODO: add code to check the database first if we already have this data
             date = date.AddHours(16);
@@ -139,7 +168,6 @@ namespace StockSimulator.Models
                 return;
             }
             result.Timestamp = date;
-            Company company = Companies.Single(c => c.TickerSymbol == tickerSymbol);
             result.Company = company;
             result.CompanyId = company.ID;
             try
